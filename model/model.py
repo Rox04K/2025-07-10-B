@@ -90,7 +90,7 @@ class Model:
     def _ricorsione(self, parziale, end, limite):
 
         if parziale[-1].product_id == end:
-            if len(parziale) == limite:
+            if len(parziale)-1 == limite:
                 pesoAttuale = self._peso(parziale)
                 if pesoAttuale > self._bestPunteggio:
                     self._bestCammino = copy.deepcopy(parziale)
@@ -98,6 +98,9 @@ class Model:
                 return
             else:
                 return
+
+        if len(parziale)-1 == limite:
+            return
 
         validi = self._grafo.successors(parziale[-1])
 
