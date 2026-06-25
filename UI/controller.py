@@ -11,6 +11,8 @@ class Controller:
         self._model = model
 
         self._sceltaCategoria = None
+        self._sceltaUtenteSP = None
+        self._sceltaUtenteEP = None
 
     def fillDDCategory(self):
         opzioni = self._model.getCategories()
@@ -59,6 +61,50 @@ class Controller:
         self._view.txt_result.controls.append(ft.Text(f'Numero di nodi: {nodi}'))
         self._view.txt_result.controls.append(ft.Text(f'Numero di archi: {archi}'))
 
+        self._fillDDProdotti()
+
+        self._view.update_page()
+
+    def _fillDDProdotti(self):
+        opzioni = self._model.getNodes()
+
+        opzioniSD = list(map(lambda x: ft.dropdown.Option(
+            key=x.product_id,
+            text=x.product_name,
+            data=x,
+            on_click=self._readChoiceSP
+        ), opzioni))
+        self._view._ddProdStart.options = opzioniSD
+
+        opzioniED = list(map(lambda x: ft.dropdown.Option(
+            key=x.product_id,
+            text=x.product_name,
+            data=x,
+            on_click=self._readChoiceEP
+        ), opzioni))
+        self._view._ddProdEnd.options = opzioniED
+
+    def _readChoiceSP(self, e):
+        scelta = e.control.data
+
+        if scelta is None:
+            self._sceltaUtenteSP = None
+
+        else:
+            self._sceltaUtenteSP = scelta
+            print(self._sceltaUtenteSP)
+
+    def _readChoiceEP(self, e):
+        scelta = e.control.data
+
+        if scelta is None:
+            self._sceltaUtenteEP = None
+
+        else:
+            self._sceltaUtenteEP = scelta
+            print(self._sceltaUtenteEP)
+
+    def handleBestProdotti(self, e):
         best = self._model.getBestNodi()
         self._view.txt_result.controls.append(ft.Text(f'I cinque prodotti più venduti sono:'))
         for b in best:
@@ -66,16 +112,36 @@ class Controller:
 
         self._view.update_page()
 
-    def handleBestProdotti(self, e):
-        best = self._model.getBestNodi()
-        self._view.txt_result.controls.append(ft.Text(f'Top 5 nodi:'))
-        for b in best:
-            self._view.txt_result.controls.append(ft.Text(f'{b[0]} con valore {b[1]}'))
+    def handleCercaCammino(self, e):
+        start = self._sceltaUtenteSP
+        if start is None:
+            self._view.create_alert('Attenzione! Selezionare un prodotto da cui partire!')
+            return
+        end = self._sceltaUtenteEP
+        if end is None:
+            self._view.create_alert('Attenzione! Selezionare un prodotto a cui arrivare!')
+            return
+        if start.product_id == end.product_id:
+            self._view.create_alert('Attenzione! I prodotti devono essere diversi!')
+            return
+
+        lun = self._view._txtInLun.value
+        if lun == "":
+            self._view.create_alert('Attenzione! Inserire la lunghezza del cammino')
+            return
+        try:
+            lunInt = int(lun)
+        except ValueError:
+            self._view.create_alert('Attenzione! La lunghezza deve essere un numero intero positivo')
+            return
+
+        self._view.txt_result.controls.clear()
+        cammino, punteggio = self._model.getCamminoOttimo(start.product_id, end.product_id, lunInt)
+        self._view.txt_result.controls.append(ft.Text(f'Il cammino ottimo ha peso {punteggio}', color='green'))
+        for b in cammino:
+            self._view.txt_result.controls.append(ft.Text(f'{b}'))
 
         self._view.update_page()
-
-    def handleCercaCammino(self, e):
-        pass
 
 
 

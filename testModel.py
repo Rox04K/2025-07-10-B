@@ -15,9 +15,9 @@ best = model.getBestNodi()
 print(f'Top 5 nodi:')
 for b in best:
     print(f'{b[0]} con valore {b[1]}')
-'''
+
 print()
-cammino, punteggio = model.getCamminoOttimo()#eventualmente ci possono essere dei parametri
+cammino, punteggio = model.getCamminoOttimo()
 print(f'Il cammino ottimo ha un punteggio di {punteggio} ed è composto da {len(cammino)} nodi')
 for s in cammino:
-    print(f'{s}')'''
+    print(f'{s}')

@@ -1,3 +1,5 @@
+import copy
+
 import networkx as nx
 
 from database.DAO import DAO
@@ -7,6 +9,9 @@ class Model:
     def __init__(self):
         self._grafo = nx.DiGraph()
         self._IDMap = {}
+
+        self._bestCammino = []
+        self._bestPunteggio = 0
 
     def getDateRange(self):
         return DAO.getDateRange()
@@ -62,6 +67,48 @@ class Model:
 
         result.sort(key=lambda x: x[1], reverse=True)
         return result[:5]
-    
+
+    def getNodes(self):
+        return list(self._grafo.nodes())
+
+    def getCamminoOttimo(self, start, end, lun):
+        self._bestCammino = []
+        self._bestPunteggio = 0
+
+        # SE HO UN NODO DI PARTENZA
+        parziale = [self._IDMap[start]]
+        self._ricorsione(parziale, end, lun)
+
+        return self._bestCammino, self._bestPunteggio
+
+    def _ricorsione(self, parziale, end, limite):
+
+        if parziale[-1].product_id == end:
+            if len(parziale) == limite:
+                pesoAttuale = self._peso(parziale)
+                if pesoAttuale > self._bestPunteggio:
+                    self._bestCammino = copy.deepcopy(parziale)
+                    self._bestPunteggio = pesoAttuale
+                return
+            else:
+                return
+
+        validi = self._grafo.successors(parziale[-1])
+
+        for n in validi:
+            if n not in parziale:
+                parziale.append(n)
+                self._ricorsione(parziale, end, limite)
+                parziale.pop()
+
+    def _peso(self, parziale):
+        peso = 0
+
+        for p in range(len(parziale)-1):
+            u = parziale[p]
+            v = parziale[p+1]
+            peso += self._grafo[u][v]['weight']
+
+        return peso
     
 
