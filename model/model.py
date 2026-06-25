@@ -20,7 +20,6 @@ class Model:
         return DAO.getCategories()
 
     def creaGrafo(self, categoria, start, end):
-        #Come prima cosa bisogna pulire il grafo per poterlo ricreare senza dati vecchi
         self._grafo.clear()
         self._IDMap = {}
 
@@ -29,6 +28,7 @@ class Model:
         for n in nodi:
             self._IDMap[n.product_id] = n
 
+        #NON FUNZIONANTE
         archi = DAO.getArchi(categoria, start, end, self._IDMap)
         pesi = DAO.getPesi(categoria, start, end)
 
@@ -39,13 +39,19 @@ class Model:
             valoriV = pesi[v.product_id]
             peso = valoriU[1] + valoriV[1]
 
-            if valoriU[0] < valoriV[0]:
+            if valoriU[1] < valoriV[1]:
                 self._grafo.add_edge(u, v, weight=peso)
-            elif valoriU[0] > valoriV[0]:
+            elif valoriU[1] > valoriV[1]:
                 self._grafo.add_edge(v, u, weight=peso)
             else:
                 self._grafo.add_edge(u, v, weight=peso)
                 self._grafo.add_edge(v, u, weight=peso)
+
+        '''archiPesati = DAO.getArchiPesati(categoria, start, end)
+        for uscente_id, entrante_id, peso in archiPesati:
+            u = self._IDMap[uscente_id]
+            v = self._IDMap[entrante_id]
+            self._grafo.add_edge(u, v, weight=peso)'''
 
     def getInfo(self):
         return len(self._grafo.nodes()), len(self._grafo.edges())

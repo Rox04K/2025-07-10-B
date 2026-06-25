@@ -123,3 +123,34 @@ class DAO():
         cursor.close()
         conn.close()
         return results
+
+    @staticmethod
+    def getArchiPesati(categoria, start, end):
+
+        conn = DBConnect.get_connection()
+
+        results = []
+
+        cursor = conn.cursor(dictionary=True)
+        query = """with statistiche as(
+                    select product_id , count(*) as numVendite, sum(quantity) as numPezzi
+                    from order_items oi , orders o 
+                    where o.order_id = oi.order_id 
+                    and o.order_date between %s and %s
+                    and oi.product_id in (select product_id
+                                            from products p 
+                                            where category_id = %s)
+                    group by product_id)
+                    select v1.product_id AS uscente, v2.product_id AS entrante, (v1.numPezzi + v2.numPezzi) AS peso
+                    FROM statistiche v1, statistiche v2
+                    WHERE v1.product_id != v2.product_id
+                    AND v1.numPezzi <= v2.numPezzi """
+
+        cursor.execute(query, (start, end, categoria,))
+
+        for row in cursor:
+            results.append((row['uscente'], row['entrante'], row['peso']))
+
+        cursor.close()
+        conn.close()
+        return results

@@ -2,7 +2,7 @@ from model.model import Model
 
 model = Model()
 
-model.creaGrafo(5, '2016-01-01', '2018-12-28')
+model.creaGrafo(7, '2017-03-11', '2018-05-25')
 print('Grafo correttamente creato')
 
 nodi, archi = model.getInfo() #Questa formattazione può variare in base all'esempio
@@ -16,8 +16,3 @@ print(f'Top 5 nodi:')
 for b in best:
     print(f'{b[0]} con valore {b[1]}')
 
-print()
-cammino, punteggio = model.getCamminoOttimo()
-print(f'Il cammino ottimo ha un punteggio di {punteggio} ed è composto da {len(cammino)} nodi')
-for s in cammino:
-    print(f'{s}')
